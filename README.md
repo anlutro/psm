@@ -7,3 +7,24 @@ This is a tool inspired by and similar to pipsi, but just a standalone shell scr
 ```
 curl https://raw.githubusercontent.com/anlutro/psm/master/install-psh.bash | bash
 ```
+
+## Usage
+
+Install one or more pip packages and their scripts:
+
+```
+psm install bpython streamlink
+```
+
+Upgrade one or more existing packages, or upgrade all installed packages:
+
+```
+psm upgrade bpyton streamlink
+psm upgrade-all
+```
+
+Uninstall one or more packages:
+
+```
+psm uninstall streamlink
+```
