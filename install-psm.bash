@@ -1,10 +1,19 @@
 #!/usr/bin/env bash
 
-if [[ $PATH == *"$HOME/.local/bin"* ]]; then
+IFS=':' read -r -a pathlist <<< "$PATH"
+path_contains() {
+	match="$1"
+	for path in "${pathlist[@]}"; do
+		[ "$path" = "$match" ] && return 0
+	done
+	return 1
+}
+
+if path_contains "$HOME/.local/bin"; then
 	dir="$HOME/.local/bin"
-elif [[ $PATH == *"$HOME/bin"* ]]; then
+elif path_contains "$HOME/bin"; then
 	dir="$HOME/bin"
-elif [[ $PATH == *"/usr/local/bin"* ]] && [ -w /usr/local/bin ]; then
+elif path_contains /usr/local/bin && [ -w /usr/local/bin ]; then
 	dir=/usr/local/bin
 else
 	echo 'No appropriate directory found in your PATH!'
