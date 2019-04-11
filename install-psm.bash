@@ -27,5 +27,5 @@ fi
 
 echo "Installing to $dir/psm ..."
 rm -f $dir/psm
-curl -so $dir/psm https://raw.githubusercontent.com/anlutro/psm/master/psh.sh
+curl -so $dir/psm https://raw.githubusercontent.com/anlutro/psm/master/psm.sh
 chmod +x $dir/psm
