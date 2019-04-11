@@ -5,7 +5,7 @@ This is a tool inspired by and similar to pipsi, but just a standalone shell scr
 ## Installation
 
 ```
-curl https://raw.githubusercontent.com/anlutro/psm/master/install-psh.bash | bash
+curl https://raw.githubusercontent.com/anlutro/psm/master/install-psm.bash | bash
 ```
 
 ## Usage
