@@ -29,6 +29,11 @@ if dist.has_metadata('installed-files.txt'):
 		path = abspath(join(dist.egg_info, line.split(',')[0]))
 		if path.startswith('$venv/bin/'):
 			print(basename(path))
+if dist.has_metadata('RECORD'):
+	records = [s.split(',')[0] for s in dist.get_metadata_lines('RECORD')]
+	bin_paths = [s for s in records if '/bin/' in s and not s.endswith('.pyc')]
+	for bin_path in bin_paths:
+		print(bin_path.split('/')[-1])
 "
 }
 
