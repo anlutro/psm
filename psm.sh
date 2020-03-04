@@ -40,7 +40,7 @@ if dist.has_metadata('RECORD'):
 _psm_install() {
     for pkg in "$@"; do
         echo "Creating virtual environment for $pkg ..."
-        $PSM_PYTHON -m venv $PSM_VENV_DIR/$pkg
+        $PSM_PYTHON -m venv $PSM_VENV_DIR/$pkg || exit 1
     done
     _psm_upgrade "$@"
 }
