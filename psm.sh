@@ -11,7 +11,7 @@ PSM_PYTHON_VER=$($PSM_PYTHON --version 2>&1 | cut -d' ' -f2)
 _psm_list() {
     for venv in $PSM_VENV_DIR/*/; do
         name=$(basename $venv)
-        $venv/bin/pip list "$@" | grep -P "^$name\s+" | awk '{ print $1, $2 }'
+        $venv/bin/pip  --disable-pip-version-check list "$@" | grep -P "^$name\s+" | awk '{ print $1, $2 }'
     done
 }
 
@@ -54,9 +54,9 @@ _psm_upgrade() {
             $PSM_PYTHON -m venv --clear $PSM_VENV_DIR/$pkg
         fi
         echo "Installing pip and setuptools for $pkg ..."
-        $venv/bin/pip install -q -U pip setuptools
+        $venv/bin/pip install --disable-pip-version-check -q -U pip setuptools
         echo "Installing package: $pkg ..."
-        $venv/bin/pip install -q -U $pkg
+        $venv/bin/pip install --disable-pip-version-check -q -U $pkg
         echo "Creating script symlinks for $pkg ..."
         _psm_list_scripts $pkg | xargs -r -n1 -I% ln -sf $venv/bin/% $PSM_BIN_DIR/
     done
