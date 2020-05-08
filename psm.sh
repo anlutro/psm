@@ -8,6 +8,10 @@
 )
 PSM_PYTHON_VER=$($PSM_PYTHON --version 2>&1 | cut -d' ' -f2)
 
+_get_pkg_name() {
+    $PSM_PYTHON -c "from pkg_resources import parse_requirements; print(next(parse_requirements('$1')).name)"
+}
+
 _psm_list() {
     for venv in $PSM_VENV_DIR/*/; do
         name=$(basename $venv)
@@ -39,26 +43,28 @@ if dist.has_metadata('RECORD'):
 
 _psm_install() {
     for pkg in "$@"; do
-        echo "Creating virtual environment for $pkg ..."
-        $PSM_PYTHON -m venv $PSM_VENV_DIR/$pkg || exit 1
+        pkg_name=$(_get_pkg_name "$pkg")
+        echo "Creating virtual environment for $pkg_name ..."
+        $PSM_PYTHON -m venv $PSM_VENV_DIR/$pkg_name || exit 1
     done
     _psm_upgrade "$@"
 }
 
 _psm_upgrade() {
     for pkg in "$@"; do
-        venv=$PSM_VENV_DIR/$pkg
+        pkg_name=$(_get_pkg_name "$pkg")
+        venv=$PSM_VENV_DIR/$pkg_name
         venv_pyver=$($venv/bin/python --version 2>&1 | cut -d' ' -f2)
         if [ $venv_pyver != $PSM_PYTHON_VER ]; then
-            echo "Recreating venv with new python for $pkg ..."
-            $PSM_PYTHON -m venv --clear $PSM_VENV_DIR/$pkg
+            echo "Recreating venv with new python for $pkg_name ..."
+            $PSM_PYTHON -m venv --clear $venv
         fi
-        echo "Installing pip and setuptools for $pkg ..."
+        echo "Installing pip and setuptools for $pkg_name ..."
         $venv/bin/pip install --disable-pip-version-check -q -U pip setuptools
         echo "Installing package: $pkg ..."
         $venv/bin/pip install --disable-pip-version-check -q -U $pkg
-        echo "Creating script symlinks for $pkg ..."
-        _psm_list_scripts $pkg | xargs -r -n1 -I% ln -sf $venv/bin/% $PSM_BIN_DIR/
+        echo "Creating script symlinks for $pkg_name ..."
+        _psm_list_scripts $pkg_name | xargs -r -n1 -I% ln -sf $venv/bin/% $PSM_BIN_DIR/
     done
 }
 
