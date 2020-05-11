@@ -3,7 +3,7 @@
 [ -z "$PSM_VENV_DIR" ] && PSM_VENV_DIR=~/.local/share/psm
 [ -z "$PSM_BIN_DIR" ] && PSM_BIN_DIR=~/.local/bin
 [ -z "$PSM_PYTHON" ] && PSM_PYTHON=$(
-    find /usr/local/bin /usr/bin -regex '.*/python[3-9]\.[0-9]+' -printf '%f\n' \
+    find $HOME/.local/bin /usr/local/bin /usr/bin -regex '.*/python[3-9]\.[0-9]+' -printf '%f\n' \
     | sort -n | tail -1
 )
 PSM_PYTHON_VER=$($PSM_PYTHON --version 2>&1 | cut -d' ' -f2)
