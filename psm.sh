@@ -1,15 +1,20 @@
 #!/bin/sh
+set -eu
 
-[ -z "$PSM_VENV_DIR" ] && PSM_VENV_DIR=~/.local/share/psm
-[ -z "$PSM_BIN_DIR" ] && PSM_BIN_DIR=~/.local/bin
-[ -z "$PSM_PYTHON" ] && PSM_PYTHON=$(
+[ -z "${PSM_VENV_DIR-}" ] && PSM_VENV_DIR=~/.local/share/psm
+[ -z "${PSM_BIN_DIR-}" ] && PSM_BIN_DIR=~/.local/bin
+[ -z "${PSM_PYTHON-}" ] && PSM_PYTHON=$(
     find $HOME/.local/bin /usr/local/bin /usr/bin -regex '.*/python[3-9]\.[0-9]+' -printf '%f\n' \
     | sort -n | tail -1
 )
 PSM_PYTHON_VER=$($PSM_PYTHON --version 2>&1 | cut -d' ' -f2)
 
 _get_pkg_name() {
-    $PSM_PYTHON -c "from pkg_resources import parse_requirements; print(next(parse_requirements('$1')).name)"
+    if [ -d "$1" ] && [ -e "$1/setup.py" ]; then
+        $PSM_PYTHON "$1/setup.py" --name
+    else
+        $PSM_PYTHON -c "from pkg_resources import parse_requirements; print(next(parse_requirements('$1')).name)"
+    fi
 }
 
 _psm_list() {
@@ -46,23 +51,40 @@ _psm_install() {
         pkg_name=$(_get_pkg_name "$pkg")
         echo "Creating virtual environment for $pkg_name ..."
         $PSM_PYTHON -m venv $PSM_VENV_DIR/$pkg_name || exit 1
+        _psm_upgrade $pkg
     done
-    _psm_upgrade "$@"
 }
 
 _psm_upgrade() {
     for pkg in "$@"; do
         pkg_name=$(_get_pkg_name "$pkg")
         venv=$PSM_VENV_DIR/$pkg_name
+
+        # determine if package is editable
+        if [ -d "$pkg" ] && [ -e "$pkg/setup.py" ]; then
+            editable_dir=$(readlink -f "$pkg")
+        else
+            editable_dir=$($venv/bin/pip list --editable | awk "\$1 == \"$pkg_name\" { print \$3 }")
+        fi
+
+        # check if venv can be upgraded with new python
         venv_pyver=$($venv/bin/python --version 2>&1 | cut -d' ' -f2)
         if [ $venv_pyver != $PSM_PYTHON_VER ]; then
             echo "Recreating venv with new python for $pkg_name ..."
             $PSM_PYTHON -m venv --clear $venv
         fi
+
         echo "Installing pip and setuptools for $pkg_name ..."
         $venv/bin/pip install --disable-pip-version-check -q -U pip setuptools
-        echo "Installing package: $pkg ..."
-        $venv/bin/pip install --disable-pip-version-check -q -U $pkg
+
+        echo "Installing package: $pkg_name ..."
+        if [ -n "$editable_dir" ]; then
+            pip_install_args="-e $editable_dir"
+        else
+            pip_install_args="$pkg"
+        fi
+        $venv/bin/pip install --disable-pip-version-check -q -U $pip_install_args
+
         echo "Creating script symlinks for $pkg_name ..."
         _psm_list_scripts $pkg_name | xargs -r -n1 -I% ln -sf $venv/bin/% $PSM_BIN_DIR/
     done
