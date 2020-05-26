@@ -1,0 +1,9 @@
+branches:
+  - master
+
+dist: bionic
+sudo: false
+language: shell
+script:
+  - shellcheck -S warning install-psm.bash
+  - shellcheck -S warning psm.sh
