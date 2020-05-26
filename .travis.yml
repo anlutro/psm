@@ -3,7 +3,7 @@ branches:
 
 dist: bionic
 sudo: false
-language: shell
+language: python
 script:
   - shellcheck -S warning install-psm.bash
   - shellcheck -S warning psm.sh
