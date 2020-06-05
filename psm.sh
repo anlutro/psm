@@ -24,8 +24,30 @@ _psm_list() {
     done
 }
 
+_psm_list_all_scripts() {
+    if [ $# -gt 0 ]; then
+        pkgs="$*"
+    else
+        pkgs=$(find ~/.local/share/psm/ -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort)
+    fi
+    for pkg in $pkgs; do
+        scripts=$(_psm_list_scripts $pkg)
+        if [ -n "$scripts" ]; then
+            echo $pkg: $scripts
+        fi
+    done
+}
+
 _psm_list_scripts() {
+    if [ -z "$1" ]; then
+        echo "missing argument!" >&2
+        return 1
+    fi
     venv=$PSM_VENV_DIR/$1
+    if [ ! -d "$venv" ]; then
+        echo "venv does not exist: $venv" >&2
+        return 1
+    fi
     $venv/bin/python -c "
 from pkg_resources import get_distribution
 from os.path import abspath, basename, join
@@ -43,7 +65,7 @@ if dist.has_metadata('RECORD'):
     bin_paths = [s for s in records if '/bin/' in s and not s.endswith('.pyc')]
     for bin_path in bin_paths:
         print(bin_path.split('/')[-1])
-"
+" | sort | uniq
 }
 
 _psm_install() {
@@ -121,7 +143,7 @@ psm() {
         cmd="$(echo "$arg" | tr -s - _)"
     fi
 
-    if [ -z "$cmd" ] || [ "$arg" = '-h' ] || [ "$arg" = '--help' ]; then
+    if [ -z "${cmd-}" ] || [ "$arg" = '-h' ] || [ "$arg" = '--help' ]; then
         func=_psm_help
     else
         func="_psm_$cmd"
