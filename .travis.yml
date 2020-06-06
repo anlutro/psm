@@ -4,6 +4,20 @@ branches:
 dist: bionic
 sudo: false
 language: shell
-script:
-  - shellcheck -S warning install-psm.bash
-  - shellcheck -S warning psm.sh
+
+jobs:
+  - name: shellcheck
+    script:
+      - shellcheck -S warning install-psm.bash
+      - shellcheck -S warning psm.sh
+
+  - name: install-psm
+    install: bash -x ./install-psm.bash
+    script: psm help >/dev/null
+
+  - name: test-psm
+    addons:
+      apt:
+        update: true
+        packages: [python3-venv, python-pip-whl]
+    script: ./test.sh

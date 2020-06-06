@@ -1,22 +1,24 @@
 #!/usr/bin/env bash
 
 IFS=':' read -r -a pathlist <<< "$PATH"
-path_contains() {
+path_contains_writeable_dir() {
 	match="$1"
 	for path in "${pathlist[@]}"; do
-		[ "$path" = "$match" ] && return 0
+		if [ "$path" = "$match" ] && [ -d "$path" ] && [ -w "$path" ]; then
+			return 0
+		fi
 	done
 	return 1
 }
 
-if path_contains "$HOME/.local/bin"; then
+if path_contains_writeable_dir "$HOME/.local/bin"; then
 	dir="$HOME/.local/bin"
-elif path_contains "$HOME/bin"; then
+elif path_contains_writeable_dir "$HOME/bin"; then
 	dir="$HOME/bin"
-elif path_contains /usr/local/bin && [ -w /usr/local/bin ]; then
+elif path_contains_writeable_dir /usr/local/bin; then
 	dir=/usr/local/bin
 else
-	echo 'No appropriate directory found in your PATH!'
+	echo 'No existing, writeable directory found in your PATH!'
 	echo
 	echo 'Create one, like ~/.local/bin or ~/bin and'
 	echo 'add it to your .profile or .bashrc, e.g.:'
