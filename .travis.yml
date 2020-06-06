@@ -13,7 +13,7 @@ jobs:
 
   - name: install-psm
     language: shell
-    install: ./install-psm.bash
+    install: bash -x ./install-psm.bash
     script: psm help >/dev/null
 
   - name: test-psm

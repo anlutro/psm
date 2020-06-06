@@ -25,6 +25,11 @@ else
 	exit 1
 fi
 
+if [ ! -d "$dir" ]; then
+	echo "$dir found in PATH and will be used, but does not exist - creating it"
+	mkdir -p "$dir"
+fi
+
 echo "Installing to $dir/psm ..."
 rm -f $dir/psm
 curl -so $dir/psm https://raw.githubusercontent.com/anlutro/psm/master/psm.sh
