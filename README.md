@@ -30,3 +30,7 @@ Uninstall one or more packages:
 ```
 psm uninstall streamlink
 ```
+
+## License
+
+The contents of this repository are released under the [GPL v3 license](https://opensource.org/licenses/GPL-3.0). See the [LICENSE](LICENSE) file included for more information.
