@@ -3,8 +3,24 @@ branches:
 
 dist: bionic
 sudo: false
-language: python
-script:
-  - shellcheck -S warning install-psm.bash
-  - shellcheck -S warning psm.sh
-  - ./test.sh
+
+jobs:
+  - name: shellcheck
+    language: shell
+    script:
+      - shellcheck -S warning install-psm.bash
+      - shellcheck -S warning psm.sh
+
+  - name: install-psm
+    language: shell
+    install: ./install-psm.bash
+    script: psm help >/dev/null
+
+  - name: test-psm
+    language: shell
+    addons:
+      apt:
+        update: true
+        packages: [python3-venv, python-pip-whl]
+    script:
+      - ./test.sh

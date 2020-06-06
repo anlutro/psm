@@ -9,11 +9,6 @@ fail() {
 command -v python3 || fail 'python3 not found!'
 python3 -m venv --help >/dev/null || fail 'venv module not installed!'
 
-mkdir -p $HOME/.local/bin
-PATH="$HOME/.local/bin:$PATH"
-
-./install-psm.bash && psm help >/dev/null || fail "install-psm didn't work!"
-
 ./psm.sh install ranger-fm==1.9.2
 ranger --help >/dev/null
 
