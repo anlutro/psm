@@ -73,7 +73,7 @@ _psm_install() {
         pkg_name=$(_get_pkg_name "$pkg")
         echo "Creating virtual environment for $pkg_name ..."
         $PSM_PYTHON -m venv $PSM_VENV_DIR/$pkg_name || exit 1
-        _psm_upgrade $pkg
+        _psm_upgrade "$pkg"
     done
 }
 
@@ -101,11 +101,11 @@ _psm_upgrade() {
 
         echo "Installing package: $pkg_name ..."
         if [ -n "$editable_dir" ]; then
-            pip_install_args="-e $editable_dir"
+            pip_install_args=(-e "$editable_dir")
         else
-            pip_install_args="$pkg"
+            pip_install_args=("$pkg")
         fi
-        $venv/bin/pip install --disable-pip-version-check -q -U $pip_install_args
+        $venv/bin/pip install --disable-pip-version-check -q -U "${pip_install_args[@]}"
 
         echo "Creating script symlinks for $pkg_name ..."
         _psm_list_scripts $pkg_name | xargs -r -n1 -I% ln -sf $venv/bin/% $PSM_BIN_DIR/
@@ -154,7 +154,7 @@ psm() {
         exit 1
     fi
 
-    eval $func "$@"
+    $func "$@"
 }
 
 psm "$@"
