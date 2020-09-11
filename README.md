@@ -8,7 +8,7 @@ This is a tool inspired by and similar to pipsi, but just a standalone shell scr
 curl https://raw.githubusercontent.com/anlutro/psm/master/install-psm.bash | bash
 ```
 
-... or just copy `psm.sh` to your favorite directory in `$PATH`.
+... or just copy `psm.bash` to your favorite directory in `$PATH`.
 
 ## Usage
 
