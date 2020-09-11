@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -eu
 
 [ -z "${PSM_VENV_DIR-}" ] && PSM_VENV_DIR=~/.local/share/psm
