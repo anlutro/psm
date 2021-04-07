@@ -108,7 +108,7 @@ _psm_upgrade() {
         $venv/bin/pip install --disable-pip-version-check -q -U "${pip_install_args[@]}"
 
         echo "Creating script symlinks for $pkg_name ..."
-        _psm_list_scripts $pkg_name | xargs -r -n1 -I% ln -sf $venv/bin/% $PSM_BIN_DIR/
+        _psm_list_scripts $pkg_name | xargs -r -I% ln -sf $venv/bin/% $PSM_BIN_DIR/
     done
 }
 
