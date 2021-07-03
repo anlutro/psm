@@ -68,13 +68,37 @@ if dist.has_metadata('RECORD'):
 " | sort | uniq
 }
 
+_install_cleanup() {
+    rm -rf $PSM_VENV_DIR/$pkg_name
+}
+
 _psm_install() {
     for pkg in "$@"; do
         pkg_name=$(_get_pkg_name "$pkg")
-        echo "Creating virtual environment for $pkg_name with $PSM_PYTHON ..."
-        $PSM_PYTHON -m venv $PSM_VENV_DIR/$pkg_name || exit 1
-        _psm_upgrade "$pkg"
+        if [ -d $PSM_VENV_DIR/$pkg_name ]; then
+            echo "$pkg_name already exists, not doing anything."
+            echo "Hint: did you mean psm upgrade or psm reinstall?"
+        else
+            trap _install_cleanup EXIT
+            echo "Creating virtual environment for $pkg_name with $PSM_PYTHON ..."
+            $PSM_PYTHON -m venv $PSM_VENV_DIR/$pkg_name || exit 1
+            _psm_upgrade "$pkg"
+            trap - EXIT
+        fi
     done
+}
+
+_psm_reinstall() {
+    for pkg in "$@"; do
+        _psm_uninstall "$pkg"
+        _psm_install "$pkg"
+    done
+}
+
+_upgade_cleanup() {
+    echo "PSM script aborted in the middle of upgrade!"
+    echo "$venv may be in an inconsistent state."
+    echo "If broken, run:  psm reinstall '$pkg'"
 }
 
 _psm_upgrade() {
@@ -89,10 +113,12 @@ _psm_upgrade() {
             editable_dir=$($venv/bin/pip list --editable | awk "\$1 == \"$pkg_name\" { print \$3 }")
         fi
 
+        trap _upgade_cleanup EXIT
+
         # check if venv can be upgraded with new python
         venv_pyver=$($venv/bin/python --version 2>&1 | cut -d' ' -f2)
         if [ $venv_pyver != $PSM_PYTHON_VER ]; then
-            echo "Recreating venv with new python for $pkg_name ..."
+            echo "Recreating venv with new python ($PSM_PYTHON) for $pkg_name ..."
             $PSM_PYTHON -m venv --clear $venv
         fi
 
@@ -109,6 +135,8 @@ _psm_upgrade() {
 
         echo "Creating script symlinks for $pkg_name ..."
         _psm_list_scripts $pkg_name | xargs -r -I% ln -sf $venv/bin/% $PSM_BIN_DIR/
+
+        trap - EXIT
     done
 }
 
