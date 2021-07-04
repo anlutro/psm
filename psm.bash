@@ -161,7 +161,7 @@ _psm_upgrade_all() {
 _psm_uninstall() {
     for pkg in "$@"; do
         echo "Uninstalling package: $pkg ..."
-        _psm_list_scripts $pkg | xargs -r -n1 -I% rm -f $PSM_BIN_DIR/%
+        _psm_list_scripts $pkg | xargs -r -I% rm -f $PSM_BIN_DIR/%
         rm -rf "${PSM_VENV_DIR:?}/$pkg"
     done
 }
