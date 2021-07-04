@@ -51,7 +51,11 @@ _psm_list_scripts() {
     fi
     venv=$PSM_VENV_DIR/$1
     if [ ! -d "$venv" ]; then
-        echo "venv does not exist: $venv" >&2
+        echo >&2 "venv does not exist: $venv"
+        return 1
+    fi
+    if [ ! -e "$venv/bin/python" ]; then
+        echo >&2 "bin/python is broken for venv: $venv"
         return 1
     fi
     $venv/bin/python -c "
