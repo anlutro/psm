@@ -18,10 +18,16 @@ _get_pkg_name() {
 }
 
 _psm_list() {
-    for venv in $PSM_VENV_DIR/*/; do
-        name=$(basename $venv)
-        $venv/bin/pip  --disable-pip-version-check list "$@" | grep -P "^$name\s+" | awk '{ print $1, $2 }'
-    done
+    {
+        for venv in $PSM_VENV_DIR/*/; do
+            name=$(basename $venv)
+            if [ -e $venv/bin/python ]; then
+                $venv/bin/pip --disable-pip-version-check list "$@" | grep -P "^$name\s+" || true
+            else
+                echo >&2 "WARNING: venv for $name is broken! to fix: psm reinstall $name"
+            fi
+        done
+    } | column -t
 }
 
 _psm_list_all_scripts() {
