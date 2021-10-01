@@ -79,7 +79,7 @@ if dist.has_metadata('RECORD'):
 }
 
 _install_cleanup() {
-    rm -rf $PSM_VENV_DIR/$pkg_name
+    rm -rf ${PSM_VENV_DIR:?}/$pkg_name
 }
 
 _psm_install() {
