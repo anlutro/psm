@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: shellcheck -S warning install-psm.bash psm.bash
+      - run: shellcheck -s bash -S warning install-psm.bash psm.bash
 
   test-install:
     runs-on: ubuntu-latest
