@@ -10,18 +10,18 @@ command -v python3 || fail 'python3 not found!'
 python3 -m venv --help >/dev/null || fail 'venv module not installed!'
 mkdir -p $HOME/.local/bin
 
-./psm.bash install ranger-fm==1.9.2
-ranger --help >/dev/null
+./psm.bash install black==21.7b0
+black --help >/dev/null
 
 ./psm.bash install streamlink
 streamlink --help >/dev/null
 
-./psm.bash list | grep -qx 'ranger-fm 1.9.2' || fail "ranger not listed!"
-./psm.bash list | grep -qx 'streamlink .*' || fail "streamlink not listed!"
-./psm.bash list-scripts ranger-fm | grep -qx 'ranger' || fail "ranger script not listed!"
+./psm.bash list | grep -qPx 'black\s+21.7b0' || fail "black not listed!"
+./psm.bash list | grep -qPx 'streamlink\s.*' || fail "streamlink not listed!"
+./psm.bash list-scripts black | grep -qx 'black' || fail "black script not listed!"
 
 ./psm.bash uninstall streamlink
-[ ! -e $HOME/.local/bin/streamlink ] || fail "uninstall didn't remove bin!"
+[ ! -e $HOME/.local/bin/streamlink ] || fail "uninstall didn't remove bin/streamlink!"
 
 ./psm.bash upgrade-all
-./psm.bash list | grep -qxv 'ranger-fm 1.9.1' || fail "upgrade-all didn't upgrade ranger-fm!"
+./psm.bash list | grep -qPxv 'black\s*' || fail "upgrade-all didn't upgrade black!"
