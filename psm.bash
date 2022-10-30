@@ -9,6 +9,8 @@ set -eu
 )
 PSM_PYTHON_VER=$($PSM_PYTHON --version 2>&1 | cut -d' ' -f2)
 
+export PIP_DISABLE_PIP_VERSION_CHECK=1
+
 _get_pkg_name() {
     if [ -d "$1" ] && [ -e "$1/setup.py" ]; then
         $PSM_PYTHON "$1/setup.py" --name
@@ -22,7 +24,7 @@ _psm_list() {
         for venv in $PSM_VENV_DIR/*/; do
             name=$(basename $venv)
             if [ -e $venv/bin/python ]; then
-                $venv/bin/pip --disable-pip-version-check list "$@" | grep -P "^$name\s+" || true
+                $venv/bin/pip list "$@" | grep -P "^$name\s+" || true
             else
                 echo >&2 "WARNING: venv for $name is broken! to fix: psm reinstall $name"
             fi
@@ -132,8 +134,8 @@ _psm_upgrade() {
             $PSM_PYTHON -m venv --clear $venv
         fi
 
-        echo "Installing pip and setuptools for $pkg_name ..."
-        $venv/bin/pip install --disable-pip-version-check -q -U pip setuptools
+        echo "Installing/upgrading pip and setuptools for $pkg_name ..."
+        $venv/bin/pip install -q -U pip setuptools
 
         echo "Installing package: $pkg_name ..."
         if [ -n "$editable_dir" ]; then
@@ -141,7 +143,7 @@ _psm_upgrade() {
         else
             pip_install_args=("$pkg")
         fi
-        $venv/bin/pip install --disable-pip-version-check -q -U "${pip_install_args[@]}"
+        $venv/bin/pip install -q -U "${pip_install_args[@]}"
 
         echo "Creating script symlinks for $pkg_name ..."
         _psm_list_scripts $pkg_name | xargs -r -I% ln -sf $venv/bin/% $PSM_BIN_DIR/
