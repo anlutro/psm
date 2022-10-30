@@ -36,7 +36,7 @@ _psm_list_all_scripts() {
     if [ $# -gt 0 ]; then
         pkgs="$*"
     else
-        pkgs=$(find ~/.local/share/psm/ -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort)
+        pkgs=$(find $PSM_VENV_DIR -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort)
     fi
     for pkg in $pkgs; do
         scripts=$(_psm_list_scripts $pkg)
