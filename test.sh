@@ -16,7 +16,7 @@ black --help >/dev/null
 ./psm.bash install streamlink
 streamlink --help >/dev/null
 
-./psm.bash list | grep -qPx 'black\s+21.7b0' || fail "black not listed!"
+./psm.bash list | grep -qPx 'black\s+22.10.0' || fail "black not listed!"
 ./psm.bash list | grep -qPx 'streamlink\s.*' || fail "streamlink not listed!"
 ./psm.bash list-scripts black | grep -qx 'black' || fail "black script not listed!"
 
