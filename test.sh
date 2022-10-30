@@ -10,7 +10,7 @@ command -v python3 || fail 'python3 not found!'
 python3 -m venv --help >/dev/null || fail 'venv module not installed!'
 mkdir -p $HOME/.local/bin
 
-./psm.bash install black==21.7b0
+./psm.bash install black==22.10.0
 black --help >/dev/null
 
 ./psm.bash install streamlink
