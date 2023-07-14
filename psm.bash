@@ -15,7 +15,7 @@ _get_pkg_name() {
     if [ -d "$1" ] && [ -e "$1/setup.py" ]; then
         $PSM_PYTHON "$1/setup.py" --name
     else
-        $PSM_PYTHON -c "from pkg_resources import parse_requirements; print(next(parse_requirements('$1')).name)"
+        $PSM_PYTHON -c "from packaging.requirements import Requirement; print(Requirement('$1').name)"
     fi
 }
 
@@ -39,7 +39,7 @@ _psm_list_all_scripts() {
         pkgs=$(find $PSM_VENV_DIR -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort)
     fi
     for pkg in $pkgs; do
-        scripts=$(_psm_list_scripts $pkg)
+        scripts=$(_psm_list_scripts $pkg || true)
         if [ -n "$scripts" ]; then
             echo $pkg: $scripts
         fi
@@ -61,19 +61,18 @@ _psm_list_scripts() {
         return 1
     fi
     $venv/bin/python -c "
-from pkg_resources import get_distribution
+from importlib.metadata import distribution
 from os.path import abspath, basename, join
-dist = get_distribution('$1')
-scripts = dist.get_entry_map().get('console_scripts', {}).values()
-for script in scripts:
-    print(script.name)
-if dist.has_metadata('installed-files.txt'):
-    for line in dist.get_metadata_lines('installed-files.txt'):
+dist = distribution('$1')
+for script in dist.entry_points.names:
+    print(script)
+if 'installed-files.txt' in dist.files:
+    for line in dist.files['installed-files.txt']:
         path = abspath(join(dist.egg_info, line.split(',')[0]))
         if path.startswith('$venv/bin/'):
             print(basename(path))
-if dist.has_metadata('RECORD'):
-    records = [s.split(',')[0] for s in dist.get_metadata_lines('RECORD')]
+if 'RECORD' in dist.metadata:
+    records = [s.split(',')[0] for s in dist.metadata['RECORD']]
     bin_paths = [s for s in records if '/bin/' in s and not s.endswith('.pyc')]
     for bin_path in bin_paths:
         print(bin_path.split('/')[-1])
