@@ -15,7 +15,9 @@ _get_pkg_name() {
     if [ -d "$1" ] && [ -e "$1/setup.py" ]; then
         $PSM_PYTHON "$1/setup.py" --name
     else
-        $PSM_PYTHON -c "from pkg_resources import parse_requirements; print(next(parse_requirements('$1')).name)"
+        # no longer available in stdlib / by default
+        # $PSM_PYTHON -c "from packaging.requirements import Requirement; print(Requirement('$1').name)"
+        echo "$1" | grep -oP '^[a-zA-Z0-9-_]+'
     fi
 }
 
