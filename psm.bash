@@ -63,19 +63,20 @@ _psm_list_scripts() {
         return 1
     fi
     $venv/bin/python -c "
-from pkg_resources import get_distribution
 from os.path import abspath, basename, join
-dist = get_distribution('$1')
-scripts = dist.get_entry_map().get('console_scripts', {}).values()
-for script in scripts:
+import importlib.metadata
+dist = importlib.metadata.distribution('$1')
+for script in dist.entry_points.select(group='console_scripts'):
     print(script.name)
-if dist.has_metadata('installed-files.txt'):
-    for line in dist.get_metadata_lines('installed-files.txt'):
-        path = abspath(join(dist.egg_info, line.split(',')[0]))
+installed = dist._read_files_egginfo_installed()
+if installed:
+    for line in installed:
+        path = abspath(join(dist.locate_file(''), line.split(',')[0]))
         if path.startswith('$venv/bin/'):
             print(basename(path))
-if dist.has_metadata('RECORD'):
-    records = [s.split(',')[0] for s in dist.get_metadata_lines('RECORD')]
+records = dist._read_files_distinfo()
+if records:
+    records = [s.split(',')[0] for s in records]
     bin_paths = [s for s in records if '/bin/' in s and not s.endswith('.pyc')]
     for bin_path in bin_paths:
         print(bin_path.split('/')[-1])
