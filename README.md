@@ -1,5 +1,9 @@
 # `psm` - python script manager
 
+> [!IMPORTANT]
+> I'm no longer maintaining this tool, and don't recommend you use it.
+> Do what I do and use [`uv`](https://docs.astral.sh/uv/) instead.
+
 This is a tool inspired by and similar to pipsi, but just a standalone shell script, which means you don't need to have `pip` or `virtualenv` or anything other than plain Python 3.4 or higher installed on your system to install or use it.
 
 ## Installation
